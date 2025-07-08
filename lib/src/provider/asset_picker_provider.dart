@@ -10,6 +10,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import '../constants/constants.dart';
 import '../delegates/sort_path_delegate.dart';
@@ -354,6 +355,8 @@ class DefaultAssetPickerProvider
       options = AdvancedCustomFilter(
         orderBy: [OrderByItem.desc(CustomColumns.android.modifiedDate)],
       );
+    } else if (fog is FileSizeFilter) {
+      options = fog.filterOptions;
     } else {
       options = fog;
     }
@@ -405,6 +408,40 @@ class DefaultAssetPickerProvider
         page: currentPage,
         size: pageSize,
       );
+      final filter = filterOptions;
+      if (filter != null && filter is FileSizeFilter) {
+        //根据文件大小过滤文件
+        final length = list.length;
+        var sum = 0;
+        for (int i = length - 1; i >= 0; i--) {
+          final e = list[i];
+          if (e.type == AssetType.image) {
+            // sum++;
+            continue;
+          }
+          final file = await e.file;
+          if (file != null) {
+            final length = file.lengthSync();
+            if (e.type == AssetType.video && length > filter.videoMaxSize) {
+              list.removeAt(i);
+              sum++;
+            }
+            // else if (e.type == AssetType.image &&
+            //     length > filter.imageMaxSize) {
+            //   list.removeAt(i);
+            //   sum++;
+            // }
+          }
+        }
+
+        if (length != 0 && sum == length) {
+          //全部过滤了 重新获取一下
+          getAssetsFromPath(currentPage + 1, currentPath);
+          return;
+        }
+      }
+
+
       if (currentPage == 0) {
         _currentAssets.clear();
         _hasMoreToLoad = null;

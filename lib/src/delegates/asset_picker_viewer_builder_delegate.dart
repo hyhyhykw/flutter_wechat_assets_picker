@@ -605,6 +605,11 @@ class DefaultAssetPickerViewerBuilderDelegate
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
+                  if (provider != null&&provider!.currentlySelectedAssets.isNotEmpty)
+                    bottomLeftButton(
+                      context,
+                      provider!.currentlySelectedAssets[0],
+                    ),
                   if (provider != null || isWeChatMoment)
                     confirmButton(context),
                 ],
@@ -781,6 +786,10 @@ class DefaultAssetPickerViewerBuilderDelegate
       ),
       child: bar,
     );
+  }
+
+  Widget bottomLeftButton(BuildContext context, AssetEntity ass) {
+    return const Expanded(child: SizedBox());
   }
 
   /// It'll pop with [AssetPickerProvider.selectedAssets] when there are

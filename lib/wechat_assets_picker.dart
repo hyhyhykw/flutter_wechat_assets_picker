@@ -23,6 +23,7 @@ export 'src/models/path_wrapper.dart';
 
 export 'src/provider/asset_picker_provider.dart';
 export 'src/provider/asset_picker_viewer_provider.dart';
+export 'src/provider/file_size_filter.dart';
 
 export 'src/widget/asset_picker.dart';
 export 'src/widget/asset_picker_app_bar.dart';
