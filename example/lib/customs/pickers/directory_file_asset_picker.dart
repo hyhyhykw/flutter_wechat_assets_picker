@@ -1248,7 +1248,7 @@ class FileAssetPickerViewerBuilderDelegate
   }
 
   @override
-  Widget bottomDetailBuilder(BuildContext context) {
+  Widget bottomDetailBuilder(BuildContext context,int index) {
     return AnimatedPositioned(
       duration: kThemeAnimationDuration,
       curve: Curves.easeInOut,
@@ -1459,7 +1459,7 @@ class FileAssetPickerViewerBuilderDelegate
                   ),
                 ),
                 appBar(context),
-                if (selectedAssets != null) bottomDetailBuilder(context),
+                if (selectedAssets != null) bottomDetailBuilder(context,currentIndex),
               ],
             ),
           ),

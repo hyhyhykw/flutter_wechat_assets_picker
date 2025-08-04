@@ -41,7 +41,8 @@ abstract class AssetPickerViewerBuilderDelegate<Asset, Path> {
     this.selectPredicate,
   })  : assert(previewAssets.isNotEmpty),
         assert(currentIndex >= 0),
-        assert(maxAssets == null || maxAssets > 0);
+        assert(maxAssets == null || maxAssets > 0),
+        currentIndexProvider = ValueNotifier(currentIndex);
 
   /// [ChangeNotifier] for photo selector viewer.
   /// 资源预览器的状态保持
@@ -122,6 +123,9 @@ abstract class AssetPickerViewerBuilderDelegate<Asset, Path> {
   /// Current previewing index in assets.
   /// 当前查看的索引
   int currentIndex;
+
+  /// 详情部件是否显示
+  ValueNotifier<int> currentIndexProvider;
 
   /// Maximum count for asset selection.
   /// 资源选择的最大数量
@@ -370,7 +374,7 @@ abstract class AssetPickerViewerBuilderDelegate<Asset, Path> {
 
   /// Detail widget aligned to bottom.
   /// 底部信息部件
-  Widget bottomDetailBuilder(BuildContext context);
+  Widget bottomDetailBuilder(BuildContext context, int index);
 
   /// Yes, the build method.
   /// 没错，是它是它就是它，我们亲爱的 build 方法~
@@ -555,7 +559,7 @@ class DefaultAssetPickerViewerBuilderDelegate
   }
 
   @override
-  Widget bottomDetailBuilder(BuildContext context) {
+  Widget bottomDetailBuilder(BuildContext context, int index) {
     final backgroundColor = themeData.bottomAppBarTheme.color?.withOpacity(
       themeData.bottomAppBarTheme.color!.opacity *
           (isAppleOS(context) ? .9 : 1),
@@ -605,11 +609,19 @@ class DefaultAssetPickerViewerBuilderDelegate
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  if (provider != null&&provider!.currentlySelectedAssets.isNotEmpty)
-                    bottomLeftButton(
-                      context,
-                      provider!.currentlySelectedAssets[0],
-                    ),
+                  // if (provider != null &&
+                  //     provider!.currentlySelectedAssets.isNotEmpty)
+
+                  bottomLeftButton(
+                    context,
+                    currentAsset,
+                  ),
+                  // if (provider != null)
+                  //
+                  // bottomLeftButton(
+                  //   context,
+                  //   currentAsset,
+                  // ),
                   if (provider != null || isWeChatMoment)
                     confirmButton(context),
                 ],
@@ -1006,6 +1018,7 @@ class DefaultAssetPickerViewerBuilderDelegate
         itemBuilder: assetPageBuilder,
         onPageChanged: (int index) {
           currentIndex = index;
+          currentIndexProvider.value = index;
           pageStreamController.add(index);
         },
       ),
@@ -1037,7 +1050,12 @@ class DefaultAssetPickerViewerBuilderDelegate
                 appBar(context),
                 if (selectedAssets != null ||
                     (isWeChatMoment && hasVideo && isAppleOS(context)))
-                  bottomDetailBuilder(context),
+                  ValueListenableBuilder(
+                    valueListenable: currentIndexProvider,
+                    builder: (ctx, index, child) {
+                      return bottomDetailBuilder(ctx, index);
+                    },
+                  ),
               ],
             ],
           ),
